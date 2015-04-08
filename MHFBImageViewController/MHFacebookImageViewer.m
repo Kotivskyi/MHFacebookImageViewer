@@ -147,13 +147,24 @@ static const CGFloat kMinImageScale = 1.0f;
     _panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(gestureRecognizerDidPan:)];
     _panGesture.cancelsTouchesInView = NO;
     _panGesture.delegate = self;
-     __weak UITableView * weakSuperView = (UITableView*) view.superview.superview.superview.superview.superview;
-    [weakSuperView.panGestureRecognizer requireGestureRecognizerToFail:_panGesture];
+    
+    __weak UIView *weakSuperView = view.superview;
+    while (![weakSuperView isKindOfClass:[UITableView class]]) {
+        weakSuperView = weakSuperView.superview;
+        if (weakSuperView == Nil) {
+            break;
+        }
+    }
+    
+    if ([weakSuperView isKindOfClass:[UITableView class]]) {
+        [((UITableView*)weakSuperView).panGestureRecognizer requireGestureRecognizerToFail:_panGesture];
+    }
+    
+    
     [view addGestureRecognizer:_panGesture];
     [_gestures addObject:_panGesture];
-
+    
 }
-
 # pragma mark - Avoid Unwanted Horizontal Gesture
 - (BOOL)gestureRecognizerShouldBegin:(UIPanGestureRecognizer *)panGestureRecognizer {
     CGPoint translation = [panGestureRecognizer translationInView:__scrollView];
